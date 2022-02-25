@@ -1,5 +1,8 @@
 package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store;
 
+/**
+ * Set of global variables
+ */
 public class GlobalVariables {
     public static int numberOfServers = 3;
     public static int numberOfReplica = 2;

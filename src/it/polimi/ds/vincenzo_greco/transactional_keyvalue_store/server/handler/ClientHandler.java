@@ -1,9 +1,9 @@
-package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server;
+package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.handler;
 
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.KeyValue;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.operation.Transaction;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.Scheduler;
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.SchedulerThread;
+import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.SchedulerTransactionHandler;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -34,13 +34,13 @@ public class ClientHandler extends Thread {
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
             Transaction transaction = (Transaction) in.readObject();
-            SchedulerThread schedulerThread = scheduler.addTransaction(transaction);
             in.close();
 
-            schedulerThread.start();
-            schedulerThread.join();
+            SchedulerTransactionHandler schedulerTransactionHandler = scheduler.addTransaction(transaction);
 
-            ArrayList<KeyValue> keyValues = schedulerThread.result;
+            schedulerTransactionHandler.run();
+
+            ArrayList<KeyValue> keyValues = schedulerTransactionHandler.result;
 
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
 
@@ -48,7 +48,7 @@ public class ClientHandler extends Thread {
             outputStream.flush();
             outputStream.close();
             socket.close();
-        } catch (IOException | InterruptedException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException | InterruptedException e) {
             e.printStackTrace();
         }
     }

@@ -70,7 +70,7 @@ public class Transaction implements Serializable {
                         maxLockForKey.put(key, LockType.EXCLUSIVE);
                     }
                 }
-                optimizedOperationMap.put(key, new OptimizedOperation(firstRead, lastWrite, maxLock));
+                optimizedOperationMap.put(key, new OptimizedOperation(firstRead, lastWrite, maxLock, key));
                 sortedKeys.add(key);
             }
         }

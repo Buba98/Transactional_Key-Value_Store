@@ -4,6 +4,9 @@ package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Simple representation of a key - value pair
+ */
 public class KeyValue implements Serializable {
     public final String key;
     public final String value;
