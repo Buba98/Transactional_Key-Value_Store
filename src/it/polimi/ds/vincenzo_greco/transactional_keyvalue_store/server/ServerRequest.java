@@ -1,8 +1,6 @@
 package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server;
 
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.operation.OptimizedOperation;
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.Lock;
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.LockType;
+import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.OptimizedOperation;
 
 import java.io.Serializable;
 

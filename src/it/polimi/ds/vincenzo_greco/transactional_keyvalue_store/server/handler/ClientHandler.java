@@ -1,7 +1,7 @@
 package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.handler;
 
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.KeyValue;
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.operation.Transaction;
+import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.Transaction;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.Scheduler;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.SchedulerTransactionHandler;
 
@@ -38,9 +38,7 @@ public class ClientHandler extends Thread {
 
             SchedulerTransactionHandler schedulerTransactionHandler = scheduler.addTransaction(transaction);
 
-            schedulerTransactionHandler.run();
-
-            ArrayList<KeyValue> keyValues = schedulerTransactionHandler.result;
+            ArrayList<KeyValue> keyValues = schedulerTransactionHandler.run();
 
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
 

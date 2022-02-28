@@ -5,5 +5,5 @@ import java.io.Serializable;
 public enum LockType implements Serializable {
     FREE,
     SHARED,
-    EXCLUSIVE;
+    EXCLUSIVE
 }

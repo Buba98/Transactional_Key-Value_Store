@@ -1,9 +1,11 @@
-package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.operation;
+package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction;
 
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.GlobalVariables;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.KeyValue;
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.Lock;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.LockType;
+import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.operation.Operation;
+import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.operation.Read;
+import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.operation.Write;
 
 import java.io.Serializable;
 import java.util.*;
@@ -34,42 +36,31 @@ public class Transaction implements Serializable {
 
                     if (Objects.equals(operation.keyValue.key, key)) {
                         if (operationList.size() > 0 &&
-                                operationList.get(operationList.size() - 1).operationType == operation.operationType) {
+                                operationList.get(operationList.size() - 1).getClass() == operation.getClass()) {
                             operationList.remove(operationList.size() - 1);
                         }
                         operationList.add(operation);
                     }
                 }
 
-                Operation lastWrite = null;
-                Operation firstRead = null;
-                LockType maxLock;
+                Write lastWrite = null;
+                Read firstRead = null;
+                LockType maxLock = LockType.SHARED;
 
-                if (operationList.size() > 1) {
-                    maxLockForKey.put(key, LockType.EXCLUSIVE);
-                    maxLock = LockType.EXCLUSIVE;
+                if (operationList.get(0) instanceof Read) {
+                    firstRead = (Read) operationList.get(0);
+                }
 
-                    if (operationList.get(0).operationType == OperationType.READ) {
-                        firstRead = operationList.get(0);
-                    }
-
-                    for (int k = operationList.size() - 1; k >= 0; k--) {
-                        if (operationList.get(k).operationType == OperationType.WRITE) {
-                            lastWrite = operationList.get(k);
-                            break;
-                        }
-                    }
-                } else {
-                    if (operationList.get(0).operationType == OperationType.READ) {
-                        maxLock = LockType.SHARED;
-                        firstRead = operationList.get(0);
-                        maxLockForKey.put(key, LockType.SHARED);
-                    } else {
+                for (int k = operationList.size() - 1; k >= 0; k--) {
+                    if (operationList.get(k) instanceof Write) {
+                        lastWrite = (Write) operationList.get(k);
                         maxLock = LockType.EXCLUSIVE;
-                        lastWrite = operationList.get(0);
-                        maxLockForKey.put(key, LockType.EXCLUSIVE);
+                        break;
                     }
                 }
+
+                maxLockForKey.put(key, maxLock);
+
                 optimizedOperationMap.put(key, new OptimizedOperation(firstRead, lastWrite, maxLock, key));
                 sortedKeys.add(key);
             }

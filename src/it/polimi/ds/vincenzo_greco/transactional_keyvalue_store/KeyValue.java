@@ -14,6 +14,7 @@ public class KeyValue implements Serializable {
     public KeyValue(String key, String value) {
 
         assert value == null || (!value.isEmpty() && !value.isBlank());
+        assert key != null && !key.isEmpty() && !key.isBlank();
 
         this.key = key;
         this.value = value;
@@ -22,5 +23,4 @@ public class KeyValue implements Serializable {
     public String toString() {
         return key + ": " + Objects.requireNonNullElse(this.value, "null");
     }
-
 }
