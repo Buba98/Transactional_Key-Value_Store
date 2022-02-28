@@ -7,14 +7,13 @@ import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.Tran
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.Server;
 
 import java.io.IOException;
-import java.util.*;
 
 public class Scheduler {
 
     DataStore dataStore = new DataStore();
-    final Map<String, LockType> keyLockType = new HashMap<>();
     private Integer schedulerThreadLastId = 0;
     final Server server;
+    private final KeyLock keyLock = new KeyLock();
     private final Object lock = new Object();
 
     public Scheduler(Server server) {
@@ -36,12 +35,7 @@ public class Scheduler {
 
         if (optimizedOperation.lockType != LockType.FREE) {
             if (serverId == server.serverId) {
-                synchronized (keyLockType) {
-                    while (keyLockType.getOrDefault(optimizedOperation.key, LockType.FREE) != LockType.FREE) {
-                        wait();
-                    }
-                    keyLockType.put(optimizedOperation.key, optimizedOperation.lockType);
-                }
+                keyLock.lock(new Lock(optimizedOperation.key, optimizedOperation.lockType));
 
                 KeyValue keyValue = null;
 
@@ -69,16 +63,20 @@ public class Scheduler {
         assert optimizedOperation.lockType == LockType.FREE;
 
         int serverId = serverLockForKey(optimizedOperation.key);
+        LockType lockType;
+
+        if (optimizedOperation.lastWrite != null)
+            lockType = LockType.EXCLUSIVE;
+        else
+            lockType = LockType.SHARED;
 
         if (serverId == server.serverId) {
-
-            synchronized (keyLockType) {
+            if (lockType == LockType.EXCLUSIVE) {
                 for (int i = 1; i < GlobalVariables.numberOfReplica; i++) {
                     server.sendRequest(optimizedOperation, serverId + i, schedulerTransactionHandlerId);
                 }
-                keyLockType.put(optimizedOperation.key, LockType.FREE);
-                notifyAll();
             }
+            keyLock.free(new Lock(optimizedOperation.key, lockType));
         } else {
             server.sendRequest(optimizedOperation, serverId, schedulerTransactionHandlerId);
         }
