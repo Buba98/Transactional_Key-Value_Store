@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class ServerHandler extends Thread {
     public final Socket socket;
-    public int id;
+    public Integer id;
     public final Server server;
     final List<ServerResponse> serverResponseList = new ArrayList<>();
     final ObjectOutputStream objectOutputStream;
