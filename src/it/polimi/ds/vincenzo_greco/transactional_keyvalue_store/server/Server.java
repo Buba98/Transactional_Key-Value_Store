@@ -56,7 +56,7 @@ public class Server {
                 serverHandlers.add(serverHandler);
             }
             ServerSocket serverSocket = new ServerSocket(GlobalVariables.serverPort);
-            while (serverHandlers.size() < GlobalVariables.numberOfServers) {
+            while (serverHandlers.size() < GlobalVariables.numberOfServers - 1) {
                 serverHandler = new ServerHandler(serverSocket.accept(), this);
                 serverHandler.start();
                 serverHandlers.add(serverHandler);

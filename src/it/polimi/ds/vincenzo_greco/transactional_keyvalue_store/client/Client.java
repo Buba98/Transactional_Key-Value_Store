@@ -1,7 +1,7 @@
 package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.client;
 
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.GlobalVariables;
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.KeyValue;
+import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.KeyValue;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.Transaction;
 
 import java.io.*;

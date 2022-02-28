@@ -1,6 +1,6 @@
 package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server;
 
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.KeyValue;
+import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.KeyValue;
 
 import java.io.Serializable;
 

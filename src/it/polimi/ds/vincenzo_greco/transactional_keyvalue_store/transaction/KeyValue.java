@@ -1,4 +1,4 @@
-package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store;
+package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction;
 
 
 import java.io.Serializable;

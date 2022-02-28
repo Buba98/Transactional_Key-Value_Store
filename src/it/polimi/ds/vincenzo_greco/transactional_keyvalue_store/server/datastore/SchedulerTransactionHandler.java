@@ -1,6 +1,6 @@
 package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore;
 
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.KeyValue;
+import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.KeyValue;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.OptimizedOperation;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.Transaction;
 
@@ -33,7 +33,7 @@ public class SchedulerTransactionHandler {
 
             locks.add(new Lock(key, optimizedOperation.lockType));
 
-            if (keyValue.value != null) {
+            if (keyValue != null) {
                 result.add(keyValue);
             }
         }

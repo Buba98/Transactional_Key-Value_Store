@@ -1,7 +1,7 @@
 package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore;
 
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.GlobalVariables;
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.KeyValue;
+import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.KeyValue;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.OptimizedOperation;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.Transaction;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.Server;

@@ -2,7 +2,7 @@ package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.client;
 
 
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.GlobalVariables;
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.KeyValue;
+import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.KeyValue;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.Transaction;
 
 import java.io.IOException;
@@ -30,11 +30,11 @@ public class ClientSocket {
 
             outputStream.writeObject(transaction);
             outputStream.flush();
-            outputStream.close();
 
             ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
 
             ArrayList<KeyValue> keyValues = (ArrayList<KeyValue>) inputStream.readObject();
+            outputStream.close();
             inputStream.close();
 
             return keyValues;

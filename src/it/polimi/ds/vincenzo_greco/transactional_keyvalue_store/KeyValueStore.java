@@ -26,6 +26,8 @@ public class KeyValueStore {
 
     public static void main(String[] args) throws IllegalArgumentException, ArrayIndexOutOfBoundsException {
 
+        assert GlobalVariables.numberOfServers >= GlobalVariables.numberOfReplica;
+
         localIp();
 
         if (args.length == 0) {
@@ -36,7 +38,8 @@ public class KeyValueStore {
 
                     List<String> addresses = new ArrayList<>(Arrays.asList(args));
                     addresses.remove(0);
-                    new Server(addresses).run();
+                    Server server = new Server(addresses);
+                    server.run();
                 }
                 case "-c" -> new Client(args[1], args[2]).run();
                 default -> help();

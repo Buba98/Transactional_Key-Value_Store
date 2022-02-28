@@ -1,6 +1,6 @@
 package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.handler;
 
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.KeyValue;
+import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.KeyValue;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.Server;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.ServerRequest;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.ServerResponse;
