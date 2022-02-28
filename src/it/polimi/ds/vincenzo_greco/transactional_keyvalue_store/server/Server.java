@@ -31,7 +31,7 @@ public class Server {
         List<InetAddress> inetAddressList = new ArrayList<>();
 
         for (String address : addresses) {
-            if (address.matches(GlobalVariables.ipRegex))
+            if (!address.matches(GlobalVariables.ipRegex))
                 throw new IllegalArgumentException(address + " not a valid address");
             try {
                 inetAddressList.add(InetAddress.getByName(address));
@@ -61,7 +61,7 @@ public class Server {
                 serverHandler.start();
                 serverHandlers.add(serverHandler);
             }
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }

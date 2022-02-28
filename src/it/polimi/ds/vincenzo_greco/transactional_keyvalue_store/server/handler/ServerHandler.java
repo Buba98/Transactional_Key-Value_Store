@@ -21,22 +21,18 @@ public class ServerHandler extends Thread {
     final ObjectOutputStream objectOutputStream;
     final ObjectInputStream objectInputStream;
 
-    public ServerHandler(Socket socket, Server server) throws IOException {
+    public ServerHandler(Socket socket, Server server) throws IOException, ClassNotFoundException {
         this.socket = socket;
         this.server = server;
         objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
         objectInputStream = new ObjectInputStream(socket.getInputStream());
+        objectOutputStream.writeObject(Integer.valueOf(server.serverId));
+        id = (Integer) objectInputStream.readObject();
     }
 
     @Override
     public void run() {
         try {
-
-            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-
-            objectOutputStream.writeInt(server.serverId);
-            id = objectInputStream.readInt();
             listener();
 
         } catch (IOException e) {
@@ -46,8 +42,6 @@ public class ServerHandler extends Thread {
     }
 
     public void listener() throws IOException {
-
-        ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
 
         while (true) {
             try {
@@ -67,7 +61,7 @@ public class ServerHandler extends Thread {
     public void addResponse(ServerResponse serverResponse) {
         synchronized (serverResponseList) {
             serverResponseList.add(serverResponse);
-            notifyAll();
+            serverResponseList.notifyAll();
         }
     }
 
@@ -84,7 +78,7 @@ public class ServerHandler extends Thread {
             synchronized (serverResponseList) {
 
                 while ((i = containResponse(serverRequest.schedulerTransactionHandlerId)) == -1) {
-                    wait();
+                    serverResponseList.wait();
                 }
 
                 return serverResponseList.remove(i);
@@ -108,7 +102,7 @@ public class ServerHandler extends Thread {
     }
 
     public int containResponse(int schedulerTransactionId) {
-        for (int i = 0; i <= serverResponseList.size(); i++) {
+        for (int i = 0; i < serverResponseList.size(); i++) {
             if (serverResponseList.get(i).schedulerTransactionId == schedulerTransactionId) {
                 return i;
             }
@@ -119,6 +113,8 @@ public class ServerHandler extends Thread {
     @Override
     public void interrupt() {
         try {
+            objectInputStream.close();
+            objectOutputStream.close();
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();

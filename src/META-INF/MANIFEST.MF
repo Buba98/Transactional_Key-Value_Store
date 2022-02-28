@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.Key
+ ValueStore
+
