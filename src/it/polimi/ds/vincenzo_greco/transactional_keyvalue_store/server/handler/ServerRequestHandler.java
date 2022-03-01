@@ -5,9 +5,6 @@ import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.Server;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.ServerRequest;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.ServerResponse;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.LockType;
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.Scheduler;
-
-import java.io.IOException;
 
 public class ServerRequestHandler extends Thread {
     final ServerRequest serverRequest;
@@ -25,7 +22,7 @@ public class ServerRequestHandler extends Thread {
             KeyValue keyValue = null;
 
             if (serverRequest.optimizedOperation.lockType == LockType.FREE) {
-                int serverId = Scheduler.serverLockForKey(serverRequest.optimizedOperation.key);
+                int serverId = server.scheduler.serverLockHolderId(serverRequest.optimizedOperation.key);
                 if (serverId == server.serverId) {
                     server.scheduler.free(serverRequest.optimizedOperation, serverRequest.schedulerTransactionHandlerId);
                 } else {
@@ -37,7 +34,7 @@ public class ServerRequestHandler extends Thread {
                 keyValue = server.scheduler.executeOperation(serverRequest.optimizedOperation, serverRequest.schedulerTransactionHandlerId);
             }
             server.sendResponse(new ServerResponse(keyValue, serverRequest.schedulerTransactionHandlerId), serverRequest.sourceId);
-        } catch (IOException | InterruptedException e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }

@@ -1,7 +1,6 @@
 package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server;
 
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.GlobalVariables;
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.OptimizedOperation;
+import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.client.ClientSocket;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.Scheduler;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.handler.ClientHandler;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.handler.ServerHandler;
@@ -26,13 +25,18 @@ public class Server {
     final List<ServerHandler> serverHandlers = new ArrayList<>();
     public final int serverId;
     public final Map<Integer, ServerHandler> serverHandlerMap = new HashMap<>();
+    private static final int serverPort = 4040;
+    public final int numberOfServers;
+    public final int numberOfReplicas;
 
-    public Server(List<String> addresses) {
+    public Server(List<String> addresses, int numberOfServers, int numberOfReplicas) {
+
+        this.numberOfServers = numberOfServers;
+        this.numberOfReplicas = numberOfReplicas;
+
         List<InetAddress> inetAddressList = new ArrayList<>();
 
         for (String address : addresses) {
-            if (!address.matches(GlobalVariables.ipRegex))
-                throw new IllegalArgumentException(address + " not a valid address");
             try {
                 inetAddressList.add(InetAddress.getByName(address));
             } catch (UnknownHostException e) {
@@ -50,13 +54,13 @@ public class Server {
         try {
             ServerHandler serverHandler;
             for (InetAddress inetAddress : inetAddressList) {
-                Socket socket = new Socket(inetAddress, GlobalVariables.serverPort);
+                Socket socket = new Socket(inetAddress, serverPort);
                 serverHandler = new ServerHandler(socket, this);
                 serverHandler.start();
                 serverHandlers.add(serverHandler);
             }
-            ServerSocket serverSocket = new ServerSocket(GlobalVariables.serverPort);
-            while (serverHandlers.size() < GlobalVariables.numberOfServers - 1) {
+            ServerSocket serverSocket = new ServerSocket(serverPort);
+            while (serverHandlers.size() < numberOfServers - 1) {
                 serverHandler = new ServerHandler(serverSocket.accept(), this);
                 serverHandler.start();
                 serverHandlers.add(serverHandler);
@@ -68,7 +72,7 @@ public class Server {
 
     public void run() {
         try {
-            ServerSocket serverSocket = new ServerSocket(GlobalVariables.clientPort);
+            ServerSocket serverSocket = new ServerSocket(ClientSocket.clientPort);
             while (true) {
                 new ClientHandler(serverSocket.accept(), scheduler).start();
             }
@@ -77,9 +81,8 @@ public class Server {
         }
     }
 
-    public ServerResponse sendRequest(OptimizedOperation optimizedOperation, int destinationId, int schedulerTransactionHandlerId) throws InterruptedException {
-        ServerRequest serverRequest = new ServerRequest(optimizedOperation, serverId, destinationId, schedulerTransactionHandlerId);
-        ServerHandler serverHandler = serverHandlerMap.get(destinationId);
+    public ServerResponse sendRequest(ServerRequest serverRequest) throws InterruptedException {
+        ServerHandler serverHandler = serverHandlerMap.get(serverRequest.destinationId);
         return serverHandler.sendRequest(serverRequest);
     }
 

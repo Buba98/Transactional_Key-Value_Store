@@ -19,9 +19,9 @@ public class OptimizedOperation implements Serializable {
 
     public OptimizedOperation(Read firstRead, Write lastWrite, LockType lockType, String key) {
 
-        assert (lockType == LockType.EXCLUSIVE && lastWrite != null) || (lockType == LockType.SHARED && firstRead != null) || lockType == LockType.SHARED;
+        assert (lockType == LockType.EXCLUSIVE && lastWrite != null) || lockType == LockType.SHARED;
 
-        assert (firstRead == null || Objects.equals(firstRead.keyValue.key, key)) && (lastWrite == null || Objects.equals(lastWrite.keyValue.value, key));
+        assert (firstRead == null || Objects.equals(firstRead.key, key)) && (lastWrite == null || Objects.equals(lastWrite.value, key));
 
         this.key = key;
         this.firstRead = firstRead;

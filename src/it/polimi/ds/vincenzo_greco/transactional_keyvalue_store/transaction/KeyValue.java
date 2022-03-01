@@ -1,8 +1,6 @@
 package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction;
 
-
 import java.io.Serializable;
-import java.util.Objects;
 
 /**
  * Simple representation of a key - value pair
@@ -18,9 +16,5 @@ public class KeyValue implements Serializable {
 
         this.key = key;
         this.value = value;
-    }
-
-    public String toString() {
-        return key + ": " + Objects.requireNonNullElse(this.value, "null");
     }
 }

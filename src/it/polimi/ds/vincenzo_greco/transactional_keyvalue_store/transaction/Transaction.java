@@ -1,6 +1,5 @@
 package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction;
 
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.GlobalVariables;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.LockType;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.operation.Operation;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.operation.Read;
@@ -24,7 +23,7 @@ public class Transaction implements Serializable {
 
         for (int i = 0; i < operations.size(); i++) {
 
-            key = operations.get(i).keyValue.key;
+            key = operations.get(i).key;
 
             if (!sortedKeys.contains(key)) {
 
@@ -36,7 +35,7 @@ public class Transaction implements Serializable {
 
                     operation = operations.get(j);
 
-                    if (Objects.equals(operation.keyValue.key, key)) {
+                    if (Objects.equals(operation.key, key)) {
                         if (operationList.size() > 0 &&
                                 operationList.get(operationList.size() - 1).getClass() == operation.getClass()) {
                             operationList.remove(operationList.size() - 1);
@@ -71,15 +70,16 @@ public class Transaction implements Serializable {
     }
 
     public static Transaction fromString(String string) throws IllegalArgumentException {
-        ArrayList<Operation> operations = new ArrayList<>();
-        if (!string.matches(GlobalVariables.operationRegex))
+        if (!string.matches("((r\\(\\w\\)|w\\(\\w\\)\\w),)*(r\\(\\w\\)|w\\(\\w\\)\\w)$"))
             throw new IllegalArgumentException(string + " not a valid transaction");
-        String[] operationsString = string.split(",");
-        for (String operationString : operationsString) {
+
+        ArrayList<Operation> operations = new ArrayList<>();
+
+        for (String operationString : string.split(",")) {
             if (operationString.startsWith("r")) {
-                operations.add(Operation.create(new KeyValue(operationString.split("\\(")[1].split("\\)")[0], null)));
+                operations.add(new Read(operationString.split("\\(")[1].split("\\)")[0]));
             } else {
-                operations.add(Operation.create(new KeyValue(operationString.split("\\(")[1].split("\\)")[0], operationString.split("\\)")[1])));
+                operations.add(new Write(operationString.split("\\(")[1].split("\\)")[0], operationString.split("\\)")[1]));
             }
         }
         return new Transaction(operations);
@@ -92,18 +92,17 @@ public class Transaction implements Serializable {
 
         Map<String, List<Operation>> operationMap = new HashMap<>();
 
-        for(int i = 0; i < operations.size(); i++){
-            if(operationMap.get(operations.get(i).keyValue.key) == null){
+        for (int i = 0; i < operations.size(); i++) {
+            if (operationMap.get(operations.get(i).key) == null) {
                 support = new ArrayList<>();
-                operationMap.put(operations.get(i).keyValue.key, support);
-                for (int j = i; j < operations.size(); j++){
-                    if(Objects.equals(operations.get(j).keyValue.key, operations.get(i).keyValue.key)){
+                operationMap.put(operations.get(i).key, support);
+                for (int j = i; j < operations.size(); j++) {
+                    if (Objects.equals(operations.get(j).key, operations.get(i).key)) {
                         support.add(operations.get(j));
                     }
                 }
             }
         }
-
 
 
         for (String key : sortedKeys) {
@@ -113,15 +112,15 @@ public class Transaction implements Serializable {
             for (Operation operation : operationMap.get(key)) {
                 if (operation instanceof Read) {
                     list.add(value);
-                } else {
-                    value = operation.keyValue.value;
+                } else if (operation instanceof Write) {
+                    value = ((Write) operation).value;
                 }
             }
         }
 
         for (Operation operation : operations) {
             if (operation instanceof Read) {
-                System.out.println(operation.keyValue.key + ": " + completeResults.get(operation.keyValue.key).remove(0));
+                System.out.println(operation.key + ": " + completeResults.get(operation.key).remove(0));
             }
         }
     }

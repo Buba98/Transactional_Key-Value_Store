@@ -6,6 +6,7 @@ import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.Server;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -27,8 +28,6 @@ public class KeyValueStore {
 
     public static void main(String[] args) throws IllegalArgumentException, ArrayIndexOutOfBoundsException {
 
-        assert GlobalVariables.numberOfServers >= GlobalVariables.numberOfReplica;
-
         localIp();
 
         if (args.length == 0) {
@@ -39,10 +38,20 @@ public class KeyValueStore {
 
                     List<String> addresses = new ArrayList<>(Arrays.asList(args));
                     addresses.remove(0);
-                    Server server = new Server(addresses);
+
+                    int numberOfServers = Integer.parseInt(addresses.remove(0));
+                    int numberOfReplicas = Integer.parseInt(addresses.remove(0));
+
+                    Server server = new Server(addresses, numberOfServers, numberOfReplicas);
                     server.run();
                 }
-                case "-c" -> new Client(args[1], args[2]).run();
+                case "-c" -> {
+                    try {
+                        new Client(args[1], args[2]).run();
+                    } catch (UnknownHostException e) {
+                        e.printStackTrace();
+                    }
+                }
                 default -> help();
             }
         }
@@ -52,7 +61,7 @@ public class KeyValueStore {
         System.out.println("""
                 Usage: key_value_store [-s || -c]
 
-                    -s   start a server [addresses]
+                    -s   start a server [number of servers] [number of replicas] [addresses]
                     -c   start a client [address] [transaction]
                 """);
     }
@@ -68,9 +77,9 @@ public class KeyValueStore {
 
                 Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
                 while (addresses.hasMoreElements()) {
-                    InetAddress addr = addresses.nextElement();
+                    InetAddress address = addresses.nextElement();
                     System.out.printf("NetInterface: name [%s], ip [%s]%n",
-                            networkInterface.getDisplayName(), addr.getHostAddress());
+                            networkInterface.getDisplayName(), address.getHostAddress());
                 }
             }
         } catch (SocketException e) {

@@ -1,7 +1,5 @@
 package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.client;
 
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.GlobalVariables;
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.KeyValue;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.Transaction;
 
 import java.io.*;
@@ -17,18 +15,8 @@ public class Client {
     public InetAddress ipAddress;
     public Transaction transaction;
 
-    public Client(String ipAddress, String stringOperations) throws IllegalArgumentException {
-        if (ipAddress.matches(GlobalVariables.ipRegex))
-            try {
-                this.ipAddress = InetAddress.getByName(ipAddress);
-
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-                throw new IllegalArgumentException(ipAddress + " not a valid address");
-            }
-        else
-            throw new IllegalArgumentException(ipAddress + " not a valid address");
-
+    public Client(String ipAddress, String stringOperations) throws IllegalArgumentException, UnknownHostException {
+        this.ipAddress = InetAddress.getByName(ipAddress);
         this.transaction = Transaction.fromString(stringOperations);
     }
 

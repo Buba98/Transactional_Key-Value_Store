@@ -26,7 +26,7 @@ public class ServerHandler extends Thread {
         this.server = server;
         objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
         objectInputStream = new ObjectInputStream(socket.getInputStream());
-        objectOutputStream.writeObject(Integer.valueOf(server.serverId));
+        objectOutputStream.writeObject(server.serverId);
         id = (Integer) objectInputStream.readObject();
     }
 

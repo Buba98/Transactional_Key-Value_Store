@@ -1,6 +1,5 @@
 package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.handler;
 
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.KeyValue;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.Transaction;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.Scheduler;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.SchedulerTransactionHandler;
@@ -9,8 +8,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-
 
 /**
  * This is a thread of a server and will handle all the client-server operations
