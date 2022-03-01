@@ -34,9 +34,7 @@ public class Client {
 
     public void run() {
         try {
-            for (KeyValue keyValue : new ClientSocket(ipAddress).sendTransaction(transaction)) {
-                System.out.println(keyValue);
-            }
+            new ClientSocket(ipAddress).sendTransaction(transaction).printResult();
         } catch (IOException e) {
             e.printStackTrace();
         }

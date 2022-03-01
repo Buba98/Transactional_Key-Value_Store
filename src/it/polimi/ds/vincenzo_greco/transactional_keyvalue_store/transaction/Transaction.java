@@ -14,8 +14,11 @@ public class Transaction implements Serializable {
     final public HashMap<String, ArrayList<Operation>> operationMap = new HashMap<>();
     final public HashMap<String, LockType> maxLockForKey = new HashMap<>();
     final public HashMap<String, OptimizedOperation> optimizedOperationMap = new HashMap<>();
+    final public HashMap<String, String> optimizedResults = new HashMap<>();
+    final public ArrayList<Operation> operations;
 
-    public Transaction(List<Operation> operations) {
+    public Transaction(ArrayList<Operation> operations) {
+        this.operations = operations;
         Operation operation;
         String key;
 
@@ -68,7 +71,7 @@ public class Transaction implements Serializable {
     }
 
     public static Transaction fromString(String string) throws IllegalArgumentException {
-        List<Operation> operations = new ArrayList<>();
+        ArrayList<Operation> operations = new ArrayList<>();
         if (!string.matches(GlobalVariables.operationRegex))
             throw new IllegalArgumentException(string + " not a valid transaction");
         String[] operationsString = string.split(",");
@@ -80,5 +83,46 @@ public class Transaction implements Serializable {
             }
         }
         return new Transaction(operations);
+    }
+
+    public void printResult() {
+        Map<String, List<String>> completeResults = new HashMap<>();
+        List<String> list;
+        List<Operation> support;
+
+        Map<String, List<Operation>> operationMap = new HashMap<>();
+
+        for(int i = 0; i < operations.size(); i++){
+            if(operationMap.get(operations.get(i).keyValue.key) == null){
+                support = new ArrayList<>();
+                operationMap.put(operations.get(i).keyValue.key, support);
+                for (int j = i; j < operations.size(); j++){
+                    if(Objects.equals(operations.get(j).keyValue.key, operations.get(i).keyValue.key)){
+                        support.add(operations.get(j));
+                    }
+                }
+            }
+        }
+
+
+
+        for (String key : sortedKeys) {
+            list = new ArrayList<>();
+            completeResults.put(key, list);
+            String value = optimizedResults.get(key);
+            for (Operation operation : operationMap.get(key)) {
+                if (operation instanceof Read) {
+                    list.add(value);
+                } else {
+                    value = operation.keyValue.value;
+                }
+            }
+        }
+
+        for (Operation operation : operations) {
+            if (operation instanceof Read) {
+                System.out.println(operation.keyValue.key + ": " + completeResults.get(operation.keyValue.key).remove(0));
+            }
+        }
     }
 }

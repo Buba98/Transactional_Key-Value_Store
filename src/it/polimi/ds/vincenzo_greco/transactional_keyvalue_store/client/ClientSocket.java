@@ -22,7 +22,7 @@ public class ClientSocket {
         socket = new Socket(inetAddress, GlobalVariables.clientPort);
     }
 
-    public List<KeyValue> sendTransaction(Transaction transaction) {
+    public Transaction sendTransaction(Transaction transaction) {
 
         try {
 
@@ -33,11 +33,11 @@ public class ClientSocket {
 
             ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
 
-            ArrayList<KeyValue> keyValues = (ArrayList<KeyValue>) inputStream.readObject();
+            Transaction result = (Transaction) inputStream.readObject();
             outputStream.close();
             inputStream.close();
 
-            return keyValues;
+            return result;
 
         } catch (UnknownHostException ex) {
 

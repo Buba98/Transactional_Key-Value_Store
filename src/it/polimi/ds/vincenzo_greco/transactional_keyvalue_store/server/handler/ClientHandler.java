@@ -37,11 +37,11 @@ public class ClientHandler extends Thread {
 
             SchedulerTransactionHandler schedulerTransactionHandler = scheduler.addTransaction(transaction);
 
-            ArrayList<KeyValue> keyValues = schedulerTransactionHandler.run();
+            schedulerTransactionHandler.run();
 
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
 
-            outputStream.writeObject(keyValues);
+            outputStream.writeObject(transaction);
             outputStream.flush();
             outputStream.close();
             in.close();
