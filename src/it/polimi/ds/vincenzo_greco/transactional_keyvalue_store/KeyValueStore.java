@@ -15,14 +15,6 @@ import java.util.List;
 /**
  * Allow to start the application both as a client or as a sever
  * All the input are meant to be the argument at the start
- * <p>
- * In order to start a client the first argument has to be -c, for a server -s
- * <p>
- * If you are a client the second argument has to be one of the servers, the third the transaction itself.
- * The transaction can be composed only by reads (r(x) - read variable x) and writes (w(x)a - write "a" on variable x)
- * <p>
- * If you are a server for the second argument on you have to enter ALL the servers already connected to the network as
- * distinct arguments as addresses
  */
 public class KeyValueStore {
 
@@ -41,6 +33,9 @@ public class KeyValueStore {
 
                     int numberOfServers = Integer.parseInt(addresses.remove(0));
                     int numberOfReplicas = Integer.parseInt(addresses.remove(0));
+
+                    if(numberOfReplicas == 0 || numberOfServers == 0 || numberOfServers < numberOfReplicas)
+                        throw new IllegalArgumentException();
 
                     Server server = new Server(addresses, numberOfServers, numberOfReplicas);
                     server.run();
