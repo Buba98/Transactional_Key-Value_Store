@@ -73,7 +73,7 @@ public class Scheduler {
         if (serverId == server.serverId) {
             if (lockType == LockType.EXCLUSIVE) {
                 for (int i = 1; i < GlobalVariables.numberOfReplica; i++) {
-                    server.sendRequest(optimizedOperation, serverId + i, schedulerTransactionHandlerId);
+                    server.sendRequest(optimizedOperation, (serverId + i) % GlobalVariables.numberOfServers, schedulerTransactionHandlerId);
                 }
             }
             keyLock.free(new Lock(optimizedOperation.key, lockType));
