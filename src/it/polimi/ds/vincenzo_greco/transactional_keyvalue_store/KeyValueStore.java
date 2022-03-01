@@ -4,11 +4,12 @@ import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.client.Client;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.Server;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
-
 
 /**
  * Allow to start the application both as a client or as a sever
@@ -51,21 +52,28 @@ public class KeyValueStore {
         System.out.println("""
                 Usage: key_value_store [-s || -c]
 
-                    s   start a server
-                    c   start a client
+                    -s   start a server [addresses]
+                    -c   start a client [address] [transaction]
                 """);
     }
 
     public static void localIp() {
-        InetAddress ip;
-        String hostname;
         try {
-            ip = InetAddress.getLocalHost();
-            hostname = ip.getHostName();
-            System.out.println("Your current IP address : " + ip);
-            System.out.println("Your current Hostname : " + hostname);
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
 
-        } catch (UnknownHostException e) {
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = interfaces.nextElement();
+                if (!networkInterface.isUp())
+                    continue;
+
+                Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+                    System.out.printf("NetInterface: name [%s], ip [%s]%n",
+                            networkInterface.getDisplayName(), addr.getHostAddress());
+                }
+            }
+        } catch (SocketException e) {
             e.printStackTrace();
         }
     }
