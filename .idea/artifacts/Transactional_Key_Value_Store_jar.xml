@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="Transactional_Key-Value_Store:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/Transactional_Key_Value_Store_jar</output-path>
-    <root id="archive" name="Transactional_Key-Value_Store.jar">
-      <element id="module-output" name="Transactional_Key-Value_Store" />
-    </root>
-  </artifact>
-</component>
