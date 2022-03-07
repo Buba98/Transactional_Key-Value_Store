@@ -3,6 +3,7 @@ package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastor
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.KeyValue;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.OptimizedOperation;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.Transaction;
+import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.TransactionResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +21,9 @@ public class SchedulerTransactionHandler {
         this.scheduler = scheduler;
     }
 
-    public void run() throws InterruptedException {
+    public TransactionResult run() throws InterruptedException {
 
+        TransactionResult transactionResult = new TransactionResult(transaction);
         OptimizedOperation optimizedOperation;
 
         for (String key : transaction.sortedKeys) {
@@ -32,12 +34,15 @@ public class SchedulerTransactionHandler {
             locks.add(new Lock(key, optimizedOperation.lockType));
 
             if (keyValue != null) {
-                transaction.optimizedResults.put(keyValue.key, keyValue.value);
+                transactionResult.optimizedResults.put(keyValue.key, keyValue.value);
             }
         }
 
         for (Lock lock : locks) {
             scheduler.free(new OptimizedOperation(null, transaction.optimizedOperationMap.get(lock.key).lastWrite, LockType.FREE, lock.key), id);
         }
+
+        transactionResult.setComplete();
+        return transactionResult;
     }
 }

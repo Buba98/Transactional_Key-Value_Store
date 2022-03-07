@@ -2,7 +2,7 @@ package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.handler;
 
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.Transaction;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.Scheduler;
-import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.datastore.SchedulerTransactionHandler;
+import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.TransactionResult;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -30,15 +30,11 @@ public class ClientHandler extends Thread {
 
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
-            Transaction transaction = (Transaction) in.readObject();
-
-            SchedulerTransactionHandler schedulerTransactionHandler = scheduler.addTransaction(transaction);
-
-            schedulerTransactionHandler.run();
+            TransactionResult transactionResult = scheduler.addTransaction((Transaction) in.readObject()).run();
 
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
 
-            outputStream.writeObject(transaction);
+            outputStream.writeObject(transactionResult);
             outputStream.flush();
             outputStream.close();
             in.close();

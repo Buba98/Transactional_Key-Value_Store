@@ -1,6 +1,7 @@
 package it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.client;
 
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.Transaction;
+import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.TransactionResult;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -17,7 +18,7 @@ public class ClientSocket {
         socket = new Socket(inetAddress, clientPort);
     }
 
-    public Transaction sendTransaction(Transaction transaction) {
+    public TransactionResult sendTransaction(Transaction transaction) {
         try {
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
 
@@ -26,7 +27,7 @@ public class ClientSocket {
 
             ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
 
-            Transaction result = (Transaction) inputStream.readObject();
+            TransactionResult result = (TransactionResult) inputStream.readObject();
             outputStream.close();
             inputStream.close();
 

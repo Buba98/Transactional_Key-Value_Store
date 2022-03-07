@@ -10,10 +10,7 @@ import java.util.*;
 
 public class Transaction implements Serializable {
     final public ArrayList<String> sortedKeys = new ArrayList<>();
-    final public HashMap<String, ArrayList<Operation>> operationMap = new HashMap<>();
-    final public HashMap<String, LockType> maxLockForKey = new HashMap<>();
     final public HashMap<String, OptimizedOperation> optimizedOperationMap = new HashMap<>();
-    final public HashMap<String, String> optimizedResults = new HashMap<>();
     final public ArrayList<Operation> operations;
 
     public Transaction(ArrayList<Operation> operations) {
@@ -28,8 +25,6 @@ public class Transaction implements Serializable {
             if (!sortedKeys.contains(key)) {
 
                 ArrayList<Operation> operationList = new ArrayList<>();
-
-                operationMap.put(key, operationList);
 
                 for (int j = i; j < operations.size(); j++) {
 
@@ -60,8 +55,6 @@ public class Transaction implements Serializable {
                     }
                 }
 
-                maxLockForKey.put(key, maxLock);
-
                 optimizedOperationMap.put(key, new OptimizedOperation(firstRead, lastWrite, maxLock, key));
                 sortedKeys.add(key);
             }
@@ -83,45 +76,5 @@ public class Transaction implements Serializable {
             }
         }
         return new Transaction(operations);
-    }
-
-    public void printResult() {
-        Map<String, List<String>> completeResults = new HashMap<>();
-        List<String> list;
-        List<Operation> support;
-
-        Map<String, List<Operation>> operationMap = new HashMap<>();
-
-        for (int i = 0; i < operations.size(); i++) {
-            if (operationMap.get(operations.get(i).key) == null) {
-                support = new ArrayList<>();
-                operationMap.put(operations.get(i).key, support);
-                for (int j = i; j < operations.size(); j++) {
-                    if (Objects.equals(operations.get(j).key, operations.get(i).key)) {
-                        support.add(operations.get(j));
-                    }
-                }
-            }
-        }
-
-
-        for (String key : sortedKeys) {
-            list = new ArrayList<>();
-            completeResults.put(key, list);
-            String value = optimizedResults.get(key);
-            for (Operation operation : operationMap.get(key)) {
-                if (operation instanceof Read) {
-                    list.add(value);
-                } else if (operation instanceof Write) {
-                    value = ((Write) operation).value;
-                }
-            }
-        }
-
-        for (Operation operation : operations) {
-            if (operation instanceof Read) {
-                System.out.println(operation.key + ": " + completeResults.get(operation.key).remove(0));
-            }
-        }
     }
 }
