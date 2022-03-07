@@ -47,15 +47,15 @@ Since in a hypothetical data store there could be a huge amount of transaction, 
 
 Concurrent transactions can cause anomalies. The possible anomalies that concurrent transaction can generate are:
 
-1. Lost update: \textcolor{red}{r1 - r2 - w2 - w1}<br/>An update is applied from a state that ignores a preceding update, which is lost
+1. Lost update: `r1 - r2 - w2 - w1`<br/>An update is applied from a state that ignores a preceding update, which is lost
 
-2. Dirty read: \textcolor{red}{r1 - w1 - r2 - abort1 - w2}<br/>An uncommitted value is used to update the data
+2. Dirty read: `r1 - w1 - r2 - abort1 - w2`<br/>An uncommitted value is used to update the data
 
-3. Non-repeatable read: \textcolor{red}{r1 - r2 - w2 - r1}<br/>Someone else updates a previously read value
+3. Non-repeatable read: `r1 - r2 - w2 - r1`<br/>Someone else updates a previously read value
 
-4. Phantom update: \textcolor{red}{r1 - r2 - w2 - r1}<br/>Someone else updates data that contributes to a previously valid constraint
+4. Phantom update: `r1 - r2 - w2 - r1`<br/>Someone else updates data that contributes to a previously valid constraint
 
-5. Phantom insert: \textcolor{red}{r1 - w2(new data) - r1}<br/>Someone else inserts data that contributes to a previously read datum
+5. Phantom insert: `r1 - w2(new data) - r1`<br/>Someone else inserts data that contributes to a previously read datum
 
 Anyway, since our domain is limited, not all the usual anomalies can occur. Let's analyze them one by one:
 
