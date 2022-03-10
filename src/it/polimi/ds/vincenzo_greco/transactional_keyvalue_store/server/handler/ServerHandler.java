@@ -6,8 +6,8 @@ import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.ServerRes
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The class responsible for the communication between two servers
@@ -17,9 +17,10 @@ public class ServerHandler extends Thread {
     public final Socket socket;
     public Integer id;
     public final Server server;
-    final List<ServerResponse> serverResponseList = new ArrayList<>();
     final ObjectOutputStream objectOutputStream;
     final ObjectInputStream objectInputStream;
+    final Map<Integer, Object> lockMap = new HashMap<>();
+    final Map<Integer, ServerResponse> responseMap = new HashMap<>();
 
     public ServerHandler(Socket socket, Server server) throws IOException, ClassNotFoundException {
         this.socket = socket;
@@ -59,33 +60,51 @@ public class ServerHandler extends Thread {
     }
 
     public void addResponse(ServerResponse serverResponse) {
-        synchronized (serverResponseList) {
-            serverResponseList.add(serverResponse);
-            serverResponseList.notifyAll();
+        synchronized (responseMap) {
+            responseMap.put(serverResponse.schedulerTransactionId, serverResponse);
+        }
+
+        synchronized (lockMap) {
+            synchronized (lockMap.get(serverResponse.schedulerTransactionId)) {
+                lockMap.get(serverResponse.schedulerTransactionId).notifyAll();
+            }
         }
     }
 
-    public ServerResponse sendRequest(ServerRequest serverRequest) throws InterruptedException {
+    public ServerResponse addRequest(ServerRequest serverRequest) throws InterruptedException, IOException {
 
-        try {
-            synchronized (objectOutputStream) {
-                objectOutputStream.writeObject(serverRequest);
-                objectOutputStream.flush();
+        if (serverRequest.synchronous) {
+            synchronized (lockMap) {
+                lockMap.put(serverRequest.schedulerTransactionHandlerId, new Object());
             }
+        }
 
-            int i;
+        sendRequest(serverRequest);
 
-            synchronized (serverResponseList) {
+        if (serverRequest.synchronous) {
+            synchronized (lockMap.get(serverRequest.schedulerTransactionHandlerId)) {
+                ServerResponse serverResponse;
 
-                while ((i = containResponse(serverRequest.schedulerTransactionHandlerId)) == -1) {
-                    serverResponseList.wait();
+                synchronized (responseMap) {
+                    serverResponse = responseMap.remove(serverRequest.schedulerTransactionHandlerId);
                 }
 
-                return serverResponseList.remove(i);
+                while (serverResponse == null) {
+                    lockMap.get(serverRequest.schedulerTransactionHandlerId).wait();
+
+                    synchronized (responseMap) {
+                        serverResponse = responseMap.get(serverRequest.schedulerTransactionHandlerId);
+                    }
+                }
+                return serverResponse;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+        } else return null;
+    }
+
+    public void sendRequest(ServerRequest serverRequest) throws IOException {
+        synchronized (objectOutputStream) {
+            objectOutputStream.writeObject(serverRequest);
+            objectOutputStream.flush();
         }
     }
 
@@ -99,15 +118,6 @@ public class ServerHandler extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public int containResponse(int schedulerTransactionId) {
-        for (int i = 0; i < serverResponseList.size(); i++) {
-            if (serverResponseList.get(i).schedulerTransactionId == schedulerTransactionId) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     @Override

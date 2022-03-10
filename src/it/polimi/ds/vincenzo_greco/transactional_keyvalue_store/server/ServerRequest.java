@@ -13,12 +13,14 @@ public class ServerRequest implements Serializable {
     public final OptimizedOperation optimizedOperation;
     public final int sourceId;
     public final int destinationId;
-    public final int schedulerTransactionHandlerId;
+    public final Integer schedulerTransactionHandlerId;
+    public final boolean synchronous;
 
-    public ServerRequest(OptimizedOperation optimizedOperation, int sourceId, int destinationId, int schedulerTransactionHandlerId) {
+    public ServerRequest(OptimizedOperation optimizedOperation, int sourceId, int destinationId, int schedulerTransactionHandlerId, boolean synchronous) {
         this.optimizedOperation = optimizedOperation;
         this.sourceId = sourceId;
         this.destinationId = destinationId;
         this.schedulerTransactionHandlerId = schedulerTransactionHandlerId;
+        this.synchronous = synchronous;
     }
 }
