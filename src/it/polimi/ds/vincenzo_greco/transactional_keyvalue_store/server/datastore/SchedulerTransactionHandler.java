@@ -5,6 +5,7 @@ import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.Opti
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.Transaction;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.TransactionResult;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class SchedulerTransactionHandler {
         this.scheduler = scheduler;
     }
 
-    public TransactionResult run() throws InterruptedException {
+    public TransactionResult run() throws InterruptedException, IOException {
 
         TransactionResult transactionResult = new TransactionResult(transaction);
         OptimizedOperation optimizedOperation;

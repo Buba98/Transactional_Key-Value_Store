@@ -7,7 +7,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
@@ -28,7 +27,7 @@ public class KeyValueStore {
             switch (args[0]) {
                 case "-s" -> {
 
-                    List<String> addresses = new ArrayList<>(Arrays.asList(args));
+                    List<String> addresses = Arrays.asList(args);
                     addresses.remove(0);
 
                     int numberOfServers = Integer.parseInt(addresses.remove(0));
@@ -37,8 +36,7 @@ public class KeyValueStore {
                     if(numberOfReplicas == 0 || numberOfServers == 0 || numberOfServers < numberOfReplicas)
                         throw new IllegalArgumentException();
 
-                    Server server = new Server(addresses, numberOfServers, numberOfReplicas);
-                    server.run();
+                    new Server(addresses, numberOfServers, numberOfReplicas).run();
                 }
                 case "-c" -> {
                     try {

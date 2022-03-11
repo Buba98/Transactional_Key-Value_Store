@@ -81,9 +81,8 @@ public class Server {
         }
     }
 
-    public ServerResponse sendRequest(ServerRequest serverRequest) throws InterruptedException {
-        ServerHandler serverHandler = serverHandlerMap.get(serverRequest.destinationId);
-        return serverHandler.sendRequest(serverRequest);
+    public ServerResponse sendRequest(ServerRequest serverRequest) throws InterruptedException, IOException {
+        return serverHandlerMap.get(serverRequest.destinationId).addRequest(serverRequest);
     }
 
     public void sendResponse(ServerResponse serverResponse, int destinationId) {

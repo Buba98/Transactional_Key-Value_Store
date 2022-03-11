@@ -6,6 +6,8 @@ import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.Opti
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.Transaction;
 import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.server.Server;
 
+import java.io.IOException;
+
 public class Scheduler {
 
     private final DataStore dataStore = new DataStore();
@@ -27,7 +29,7 @@ public class Scheduler {
         return new SchedulerTransactionHandler(transaction, schedulerThreadLastId, this);
     }
 
-    public KeyValue executeOperation(OptimizedOperation optimizedOperation, int schedulerTransactionHandlerId) throws InterruptedException {
+    public KeyValue executeOperation(OptimizedOperation optimizedOperation, int schedulerTransactionHandlerId) throws InterruptedException, IOException {
 
         int serverLockHolderId = serverLockHolderId(optimizedOperation.key);
 
@@ -37,18 +39,15 @@ public class Scheduler {
 
                 KeyValue keyValue = null;
 
-                if (optimizedOperation.firstRead != null)
-                    keyValue = dataStore.read(optimizedOperation.firstRead);
+                if (optimizedOperation.firstRead != null) keyValue = dataStore.read(optimizedOperation.firstRead);
 
-                if (optimizedOperation.lastWrite != null)
-                    dataStore.write(optimizedOperation.lastWrite);
+                if (optimizedOperation.lastWrite != null) dataStore.write(optimizedOperation.lastWrite);
 
                 return keyValue;
             } else {
-                return server.sendRequest(new ServerRequest(optimizedOperation, server.serverId, serverLockHolderId, schedulerTransactionHandlerId)).keyValue;
+                return server.sendRequest(new ServerRequest(optimizedOperation, server.serverId, serverLockHolderId, schedulerTransactionHandlerId, true)).keyValue;
             }
         } else {
-
             assert optimizedOperation.lastWrite != null && schedulerHasAReplica(optimizedOperation.key) && serverLockHolderId != server.serverId;
 
             dataStore.write(optimizedOperation.lastWrite);
@@ -56,27 +55,25 @@ public class Scheduler {
         }
     }
 
-    public void free(OptimizedOperation optimizedOperation, int schedulerTransactionHandlerId) throws InterruptedException {
+    public void free(OptimizedOperation optimizedOperation, int schedulerTransactionHandlerId) throws InterruptedException, IOException {
 
         assert optimizedOperation.lockType == LockType.FREE;
 
         int serverLockHolderId = serverLockHolderId(optimizedOperation.key);
         LockType lockType;
 
-        if (optimizedOperation.lastWrite != null)
-            lockType = LockType.EXCLUSIVE;
-        else
-            lockType = LockType.SHARED;
+        if (optimizedOperation.lastWrite != null) lockType = LockType.EXCLUSIVE;
+        else lockType = LockType.SHARED;
 
         if (serverLockHolderId == server.serverId) {
             if (lockType == LockType.EXCLUSIVE) {
                 for (int i = 1; i < server.numberOfReplicas; i++) {
-                    server.sendRequest(new ServerRequest(optimizedOperation, server.serverId, (serverLockHolderId + i) % server.numberOfServers, schedulerTransactionHandlerId));
+                    server.sendRequest(new ServerRequest(optimizedOperation, server.serverId, (serverLockHolderId + i) % server.numberOfServers, schedulerTransactionHandlerId, false));
                 }
             }
             keyLock.free(new Lock(optimizedOperation.key, lockType));
         } else {
-            server.sendRequest(new ServerRequest(optimizedOperation, server.serverId, serverLockHolderId, schedulerTransactionHandlerId));
+            server.sendRequest(new ServerRequest(optimizedOperation, server.serverId, serverLockHolderId, schedulerTransactionHandlerId, false));
         }
     }
 
