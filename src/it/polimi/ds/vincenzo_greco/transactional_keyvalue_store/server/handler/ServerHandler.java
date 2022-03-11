@@ -33,16 +33,10 @@ public class ServerHandler extends Thread {
 
     @Override
     public void run() {
-        try {
-            listener();
-
-        } catch (IOException e) {
-            interrupt();
-            e.printStackTrace();
-        }
+        listener();
     }
 
-    public void listener() throws IOException {
+    public void listener() {
 
         while (true) {
             try {
@@ -53,7 +47,7 @@ public class ServerHandler extends Thread {
                 } else if (object instanceof ServerRequest) {
                     new ServerRequestHandler((ServerRequest) object, server).start();
                 }
-            } catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
         }
@@ -118,17 +112,5 @@ public class ServerHandler extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void interrupt() {
-        try {
-            objectInputStream.close();
-            objectOutputStream.close();
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        super.interrupt();
     }
 }

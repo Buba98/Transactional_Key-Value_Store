@@ -4,7 +4,6 @@ import it.polimi.ds.vincenzo_greco.transactional_keyvalue_store.transaction.Opti
 
 import java.io.Serializable;
 
-
 /**
  * A server request to another server
  */
